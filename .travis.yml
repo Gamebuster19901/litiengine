@@ -6,7 +6,7 @@ before_install:
   - sudo apt-get -y install libopenjfx-java
 jdk: 
   - openjdk11
-  - oraclejdk9
+  - openjdk8
 
 git:
   depth: false
