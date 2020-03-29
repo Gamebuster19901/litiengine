@@ -3,7 +3,7 @@ install: true
 before_install:
   - chmod +x gradlew
   - sudo apt-get -y install at-spi2-core
-  - sudo apt-get -y install libopenjfx-java
+  - sudo apt-get -y install openjfx
 jdk: 
   - openjdk11
   - openjdk8
