@@ -2,6 +2,11 @@ buildscript {
   repositories {
     mavenCentral()
   }
+  dependencies {
+    if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
+      classpath "org.openjfx:javafx-plugin:0.0.8"
+    }
+  }
 }
  
 plugins {
@@ -11,11 +16,10 @@ plugins {
 
 if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
   apply plugin: 'org.openjfx.javafxplugin'
-}
-
-javafx {
-  version = "11.0.2"
-  modules = ['javafx.media', 'javafx.swing']
+  javafx {
+    version = "11.0.2"
+    modules = ['javafx.media', 'javafx.swing']
+  }
 }
 
 natives {
@@ -28,8 +32,8 @@ apply plugin: 'jacoco'
 
 archivesBaseName = "litiengine"
 version = "v0.4.19-alpha"
-sourceCompatibility = "11"
-targetCompatibility = "11"
+sourceCompatibility = "8"
+targetCompatibility = "8"
 
 sourceSets {
   main.java.srcDir "src"

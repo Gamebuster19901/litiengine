@@ -1,8 +1,21 @@
+buildscript {
+  dependencies {
+    if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
+      classpath "org.openjfx:javafx-plugin:0.0.8"
+    }
+  }
+}
+
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+
 if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
   apply plugin: 'org.openjfx.javafxplugin'
+  javafx {
+    version = "11.0.2"
+    modules = ['javafx.media', 'javafx.swing']
+  }
 }
 
 sourceSets {
@@ -15,11 +28,6 @@ sourceSets {
 
 repositories {
   mavenCentral()
-}
-
-javafx {
-  version = "11.0.2"
-  modules = ['javafx.media', 'javafx.swing']
 }
 
 dependencies {
@@ -102,6 +110,8 @@ tasks.withType(JavaCompile) {
 group = "de.gurkenlabs"
 archivesBaseName = "litiengine"
 version = "0.4.19"
+sourceCompatibility = "8"
+targetCompatibility = "8"
 
 publishing {
   publications {
