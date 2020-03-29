@@ -19,6 +19,8 @@ apply plugin: 'jacoco'
 
 archivesBaseName = "litiengine"
 version = "v0.4.19-alpha"
+sourceCompatibility = "11"
+targetCompatibility = "11"
 
 sourceSets {
   main.java.srcDir "src"
