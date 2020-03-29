@@ -1,9 +1,7 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
-  apply plugin: 'org.openjfx.javafxplugin'
-}
+apply plugin: 'org.openjfx.javafxplugin'
 
 sourceSets {
   main.java.srcDir "src"

@@ -10,10 +10,6 @@ plugins {
   id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 
-if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_11)) {
-  apply plugin: 'org.openjfx.javafxplugin'
-}
-
 javafx {
   version = "11.0.2"
   modules = ['javafx.media', 'javafx.swing']
@@ -134,6 +130,14 @@ task copyLicense(type: Copy) {
   into new File(buildDir, 'libs')
 }
 
+task checkJavaVersion {
+  JavaVersion version = JavaVersion.current();
+  if(!JavaVersion.VERSION_11.isCompatibleWith(version)) {
+  	throw new UnsupportedClassVersionError("Java 11 or higher is required to compile, you are currently running version " + version);
+  }
+}
+
+compileJava.dependsOn checkJavaVersion
 compileJava.dependsOn includeNatives
 includeNatives.dependsOn copyLicense
 
