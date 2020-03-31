@@ -8,10 +8,9 @@ import java.time.Duration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import de.gurkenlabs.litiengine.gui.GuiComponent;
 import de.gurkenlabs.litiengine.resources.VideoResource;
+
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * 
@@ -79,7 +78,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
    * 
-   * @throws IOException if the VideoResource's URL protocol is web based and the 
+   * @throws UncheckedIOException if the VideoResource's URI protocol is web based and the 
    * connection is refused
    * 
    * @throws javafx.scene.media.MediaException see {@link javafx.scene.media.Media#Media(String)}
@@ -107,7 +106,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
    * 
-   * @throws IOException if the VideoResource's URL protocol is web based and the 
+   * @throws UncheckedIOException if the VideoResource's URL protocol is web based and the 
    * connection is refused
    * 
    * @throws javafx.scene.media.MediaException see {@link javafx.scene.media.Media#Media(String)}
@@ -139,7 +138,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
    * 
-   * @throws IOException if the URL protocol is web based and the connection is refused
+   * @throws UncheckedIOException if the URL protocol is web based and the connection is refused
    * 
    * @throws javafx.scene.media.MediaException see {@link javafx.scene.media.Media#Media(String)}
    * 
@@ -164,7 +163,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
    * 
-   * @throws IOException if the URL protocol is web based and the connection is refused
+   * @throws UncheckedIOException if the URL protocol is web based and the connection is refused
    * 
    * @throws javafx.scene.media.MediaException see {@link javafx.scene.media.Media#Media(String)}
    * 
@@ -178,14 +177,6 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    */
   public VideoManager(URL url, boolean play) throws NoClassDefFoundError, IOException {
     super(0,0);
-    if(url.getProtocol().startsWith("http")) {
-      if(!allowNetworkConnections) {
-        throw new IOException("Network access disallowed");
-      }
-      if(url.getProtocol().equals("http")) {
-        throw new SSLHandshakeException("Insecure protocol: http. Use https");
-      }
-    }
     if(play) {
       play(url);
     }
@@ -445,12 +436,12 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
   }
 
   @Override
-  public void setVideo(URL url) {
+  public void setVideo(URL url) throws IOException{
     impl.setVideo(url);
   }
 
   @Override
-  public void play(URL url) {
+  public void play(URL url) throws IOException {
     impl.play(url);
   }
   
