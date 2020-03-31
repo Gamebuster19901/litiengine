@@ -89,7 +89,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws LinkageError if JavaFX exists but otherwise fails to load (It is highly 
    * discouraged to catch this)
    * 
-   * @see {@link javafx.scene.media.Media#Media(String)} for more details and thrown exceptions
+   * @see javafx.scene.media.Media#Media(String)
    */
   public VideoManager(VideoResource video) throws NoClassDefFoundError {
     super(0,0);
@@ -117,7 +117,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws LinkageError if JavaFX exists but otherwise fails to load (It is highly 
    * discouraged to catch this)
    * 
-   * @see {@link javafx.scene.media.Media#Media(String)} for more details and thrown exceptions
+   * @see javafx.scene.media.Media#Media(String)
    */
   public VideoManager(VideoResource video, boolean play) throws NoClassDefFoundError {
     super(0,0);
@@ -148,7 +148,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws LinkageError if JavaFX exists but otherwise fails to load (It is highly 
    * discouraged to catch this)
    * 
-   * @see {@link javafx.scene.media.Media#Media(String)} for more details and thrown exceptions
+   * @see javafx.scene.media.Media#Media(String)
    */
   public VideoManager(URL url) throws NoClassDefFoundError, IOException {
     this(url, false);
@@ -173,7 +173,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws LinkageError if JavaFX exists but otherwise fails to load (It is highly 
    * discouraged to catch this)
    * 
-   * @see {@link javafx.scene.media.Media#Media(String)} for more details and thrown exceptions
+   * @see javafx.scene.media.Media#Media(String)
    */
   public VideoManager(URL url, boolean play) throws NoClassDefFoundError, IOException {
     super(0,0);
@@ -309,7 +309,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
   /**
    * @return the number of completed playback cycles. Begins at 0.
    * 
-   * @see {@link javafx.scene.media.MediaPlayer#currentCountProperty()}
+   * @see javafx.scene.media.MediaPlayer#currentCountProperty()
    */
   @Override
   public int getCurrentCount() {
