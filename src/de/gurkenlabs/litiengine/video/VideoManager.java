@@ -139,7 +139,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
    * 
-   * @throws UncheckedIOException if the URL protocol is web based and the connection is refused
+   * @throws IOException if the URL protocol is web based and the connection is refused
    * 
    * @throws javafx.scene.media.MediaException see {@link javafx.scene.media.Media#Media(String)}
    * 
@@ -164,7 +164,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
    * 
-   * @throws UncheckedIOException if the URL protocol is web based and the connection is refused
+   * @throws IOException if the URL protocol is web based and the connection is refused
    * 
    * @throws javafx.scene.media.MediaException see {@link javafx.scene.media.Media#Media(String)}
    * 
