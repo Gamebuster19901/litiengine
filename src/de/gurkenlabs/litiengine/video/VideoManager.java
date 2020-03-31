@@ -160,6 +160,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * desired
    * 
    * @param url the URL of the video
+   * @param play whether to immediately begin playing the video
    * 
    * @throws NoClassDefFoundError if JavaFX is not installed (you can catch this if you 
    * want to handle JavaFX not being installed)
