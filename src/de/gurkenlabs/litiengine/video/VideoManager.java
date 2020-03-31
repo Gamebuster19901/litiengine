@@ -3,6 +3,7 @@ package de.gurkenlabs.litiengine.video;
 import java.awt.Container;
 import java.awt.Graphics2D;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.logging.Level;
@@ -65,7 +66,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @throws LinkageError if the linkage otherwise fails (It is highly discouraged to 
    * catch this)
    */
-  public VideoManager() throws NoClassDefFoundError {
+  public VideoManager() {
     super(0,0);
   };
   
@@ -91,7 +92,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * 
    * @see javafx.scene.media.Media#Media(String)
    */
-  public VideoManager(VideoResource video) throws NoClassDefFoundError {
+  public VideoManager(VideoResource video) {
     super(0,0);
     setVideo(video);
   }
@@ -119,7 +120,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * 
    * @see javafx.scene.media.Media#Media(String)
    */
-  public VideoManager(VideoResource video, boolean play) throws NoClassDefFoundError {
+  public VideoManager(VideoResource video, boolean play) {
     super(0,0);
     if(play) {
       play(video);
@@ -206,7 +207,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * This is generally the State of the player immediately after 
    * creation. 
    *
-   * @see javafx.scene.media.MediaPlayer.Status.UNKNOWN
+   * @see javafx.scene.media.MediaPlayer.Status#UNKNOWN
    */
   @Override
   public boolean isStatusUnknown() {
@@ -216,7 +217,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
   /**
    * @return true if the video is ready to play.
    * 
-   * @see javafx.scene.media.MediaPlayer.Status.READY
+   * @see javafx.scene.media.MediaPlayer.Status#READY
    */
   @Override
   public boolean isReady() {
@@ -229,7 +230,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * This means that playback can never continue again with this VideoManager
    * and a new VideoManager should be created.
    * 
-   * @see javafx.scene.media.MediaPlayer.Status.HALTED
+   * @see javafx.scene.media.MediaPlayer.Status#HALTED
    */
   @Override
   public boolean isErrored() {
@@ -250,7 +251,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
    * @return true if the video has stopped playing because the
    * buffer has slowed or stopped.
    * 
-   * @see javafx.scene.media.MediaPlayer.Status.STALLED
+   * @see javafx.scene.media.MediaPlayer.Status#STALLED
    */
   @Override
   public boolean isBuffering() {
@@ -260,7 +261,7 @@ public final class VideoManager extends GuiComponent implements VideoPlayer {
   /**
    * @return true if playback has been stopped under normal conditions
    * 
-   * @see javafx.scene.media.MediaPlayer.Status.STOPPED
+   * @see javafx.scene.media.MediaPlayer.Status#STOPPED
    */
   @Override
   public boolean isStopped() {
