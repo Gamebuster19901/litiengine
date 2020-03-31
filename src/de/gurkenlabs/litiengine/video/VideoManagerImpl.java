@@ -60,7 +60,9 @@ final class VideoManagerImpl implements VideoPlayer{
   @Override
   public void play(URL url) throws IOException {
     setVideo(url);
-    play();
+    Platform.runLater(() -> {
+      play();
+    });
   }
   
   public void play() {
@@ -83,13 +85,6 @@ final class VideoManagerImpl implements VideoPlayer{
       mediaView.autosize();
       panel.setScene(scene);
       mediaView.getMediaPlayer().setOnReady(() -> panel.setSize(media.getWidth(), media.getHeight()));
-    });
-  }
-  
-  private synchronized void play(Media media) {
-    setMedia(media);
-    Platform.runLater(() -> {
-      play();
     });
   }
   
