@@ -1,4 +1,4 @@
-package de.gurkenlabs.litiengine.video;
+package de.gurkenlabs.litiengine.gui;
 
 import java.awt.Graphics2D;
 import java.io.IOException;
@@ -9,17 +9,16 @@ import java.util.logging.Logger;
 
 import org.freedesktop.gstreamer.swing.GstVideoComponent;
 
-import de.gurkenlabs.litiengine.gui.GuiComponent;
 import de.gurkenlabs.litiengine.resources.VideoResource;
 
-public final class GStreamerVideoManager extends GuiComponent implements VideoPlayer {
+public final class VideoManager extends GuiComponent implements IVideoPlayer {
 
-  private static final Logger log = Logger.getLogger(GStreamerVideoManager.class.getName());
+  private static final Logger log = Logger.getLogger(VideoManager.class.getName());
   private static boolean checked = false;
   
   public static boolean allowNetworkConnections = false;
   
-  private VideoPlayer impl;
+  private IVideoPlayer impl;
   
   {
     initialize();
@@ -28,7 +27,7 @@ public final class GStreamerVideoManager extends GuiComponent implements VideoPl
   /**
    * Creates a new VideoManager
    */
-  public GStreamerVideoManager() {
+  public VideoManager() {
     super(0,0);
   };
   
@@ -44,7 +43,7 @@ public final class GStreamerVideoManager extends GuiComponent implements VideoPl
    * @throws UncheckedIOException if the VideoResource's URI protocol is web based and the 
    * connection is refused
    */
-  public GStreamerVideoManager(VideoResource video) {
+  public VideoManager(VideoResource video) {
     super(0,0);
     setVideo(video);
   }
@@ -62,7 +61,7 @@ public final class GStreamerVideoManager extends GuiComponent implements VideoPl
    * @throws UncheckedIOException if the VideoResource's URL protocol is web based and the 
    * connection is refused
    */
-  public GStreamerVideoManager(VideoResource video, boolean play) {
+  public VideoManager(VideoResource video, boolean play) {
     super(0,0);
     if(play) {
       play(video);
@@ -83,7 +82,7 @@ public final class GStreamerVideoManager extends GuiComponent implements VideoPl
    * 
    * @throws IOException if the URL protocol is web based and the connection is refused
    */
-  public GStreamerVideoManager(URL url) throws NoClassDefFoundError, IOException {
+  public VideoManager(URL url) throws NoClassDefFoundError, IOException {
     this(url, false);
   }
   
@@ -97,7 +96,7 @@ public final class GStreamerVideoManager extends GuiComponent implements VideoPl
    * @throws IOException if the URL protocol is web based and the connection is refused
    * 
    */
-  public GStreamerVideoManager(URL url, boolean play) throws NoClassDefFoundError, IOException {
+  public VideoManager(URL url, boolean play) throws NoClassDefFoundError, IOException {
     super(0,0);
     if(play) {
       play(url);
@@ -118,7 +117,7 @@ public final class GStreamerVideoManager extends GuiComponent implements VideoPl
       throw new IllegalStateException("Video player already initialized!");
     }
     
-    impl = new GStreamerVideoPlayer();
+    impl = new VideoPlayer();
     
   }
   

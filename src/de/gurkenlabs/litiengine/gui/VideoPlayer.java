@@ -1,4 +1,4 @@
-package de.gurkenlabs.litiengine.video;
+package de.gurkenlabs.litiengine.gui;
 
 import static org.freedesktop.gstreamer.lowlevel.GstClockAPI.GSTCLOCK_API;
 import static java.time.Duration.ZERO;
@@ -23,7 +23,7 @@ import static org.freedesktop.gstreamer.State.*;
 import org.freedesktop.gstreamer.elements.PlayBin;
 import org.freedesktop.gstreamer.swing.GstVideoComponent;
 
-final class GStreamerVideoPlayer implements VideoPlayer, Closeable{
+final class VideoPlayer implements IVideoPlayer, Closeable{
   
   static {
     Gst.init("VideoPlayer");
@@ -50,7 +50,7 @@ final class GStreamerVideoPlayer implements VideoPlayer, Closeable{
   @Override
   public synchronized void setVideo(URL url) throws IOException {
     if(url.getProtocol().startsWith("http")) {
-      if(!GStreamerVideoManager.allowNetworkConnections) {
+      if(!VideoManager.allowNetworkConnections) {
         throw new IOException("Network access disallowed");
       }
       if(url.getProtocol().equals("http")) {
@@ -157,7 +157,7 @@ final class GStreamerVideoPlayer implements VideoPlayer, Closeable{
     return false;
   }
   
-  public VideoPlayer.Status getStatus() {
+  public IVideoPlayer.Status getStatus() {
     switch (getPlayer().getState()) {
     case PAUSED:
       return Status.PAUSED;

@@ -1,4 +1,4 @@
-package de.gurkenlabs.litiengine.video;
+package de.gurkenlabs.litiengine.gui;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.time.Duration;
 
 import de.gurkenlabs.litiengine.resources.VideoResource;
 
-interface VideoPlayer {
+interface IVideoPlayer {
   void dispose();
   
   boolean isStatusUnknown();
