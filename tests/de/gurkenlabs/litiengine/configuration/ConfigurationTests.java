@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import de.gurkenlabs.litiengine.util.io.FileUtilities;
 
-class ConfigurationTests {
+public class ConfigurationTests {
 
   private static void deleteTempConfigFile(final Configuration config) {
     if (config != null) {
@@ -31,16 +31,16 @@ class ConfigurationTests {
   }
 
   @Test
-  void testConfigurationGroupInitialization() {
+  public void testConfigurationGroupInitialization() {
     Configuration config = null;
     final TestConfigurationGroup group = new TestConfigurationGroup();
 
     try {
       config = new Configuration(group);
       config.load();
-      assertEquals(config.getConfigurationGroup(group.getClass()), group);
+      assertTrue(config.getConfigurationGroup(group.getClass()).equals(group));
       assertEquals("test-prefix", group.getPrefix());
-      assertEquals(config.getConfigurationGroup("test-prefix"), group);
+      assertTrue(config.getConfigurationGroup("test-prefix").equals(group));
 
     } finally {
       deleteTempConfigFile(config);
@@ -48,7 +48,7 @@ class ConfigurationTests {
   }
 
   @Test
-  void testDefaultFileCreation() {
+  public void testDefaultFileCreation() {
     Configuration config = null;
     try {
       config = new Configuration();
@@ -60,7 +60,7 @@ class ConfigurationTests {
   }
 
   @Test
-  void testFieldInitialization() {
+  public void testFieldInitialization() {
     Configuration config = null;
     final TestConfigurationGroup group = new TestConfigurationGroup();
 
@@ -90,7 +90,7 @@ class ConfigurationTests {
   }
 
   @Test
-  void testFileName() {
+  public void testFileName() {
     final String testFileName = UUID.randomUUID().toString() + ".properties";
     Configuration config = null;
     try {

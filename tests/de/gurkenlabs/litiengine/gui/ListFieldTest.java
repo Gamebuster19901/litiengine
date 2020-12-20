@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import de.gurkenlabs.litiengine.Game;
 
-class ListFieldTest {
+public class ListFieldTest {
 
   private final String[] content_1D = new String[] {
       "A", "B", "C", "D", "E", "F", "G"
@@ -22,7 +22,7 @@ class ListFieldTest {
   };
 
   @Test
-  void testInitialization() {
+  public void testInitialization() {
     Game.init(Game.COMMADLINE_ARG_NOGUI);
 
     ListField listField_1D = new ListField(0, 0, 100, 50, this.content_1D, 4);
