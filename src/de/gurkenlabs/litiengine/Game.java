@@ -10,6 +10,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import de.gurkenlabs.litiengine.configuration.ClientConfiguration;
 import de.gurkenlabs.litiengine.configuration.DebugConfiguration;
 import de.gurkenlabs.litiengine.configuration.GameConfiguration;
@@ -88,6 +91,9 @@ public final class Game {
   private static GameWindow gameWindow;
 
   private static GameWorld world = new GameWorld();
+  
+  private static Gson gson;
+  private static GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().excludeFieldsWithoutExposeAnnotation();
 
   private static boolean debug = true;
   private static boolean noGUIMode = false;
@@ -435,6 +441,17 @@ public final class Game {
     return world;
   }
   
+  public static GsonBuilder gsonBuilder() {
+    return gsonBuilder();
+  }
+  
+  public static Gson gson() {
+    if(initialized) {
+      return gson;
+    }
+    throw new IllegalStateException("The gson serializer is not built until the game has been initialized");
+  }
+  
   /**
    * Gets the game's Tween manager that holds all currently active Tween instances.
    * 
@@ -453,6 +470,7 @@ public final class Game {
    * <li>handle the specified program parameters</li>
    * <li>configure the logging</li>
    * <li>set the programs {@code Locale} according to the configured values.</li>
+   * <li>build the gson serializer
    * <li>initialize and attach core components like the {@code PhysicsEngine}</li>
    * <li>initialize the {@code ScreenManger}</li>
    * <li>initialize the {@code Input}</li>
@@ -474,6 +492,8 @@ public final class Game {
 
     config().load();
     Locale.setDefault(new Locale(config().client().getCountry(), config().client().getLanguage()));
+    
+    gson = gsonBuilder.create();
 
     gameLoop = new GameLoop("Main Update Loop", config().client().getMaxFps());
     loop().attach(physics());
