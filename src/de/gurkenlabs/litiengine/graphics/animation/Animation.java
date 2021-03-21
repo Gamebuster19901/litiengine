@@ -1,10 +1,14 @@
 package de.gurkenlabs.litiengine.graphics.animation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import de.gurkenlabs.litiengine.Game;
 import de.gurkenlabs.litiengine.ILaunchable;
@@ -20,25 +24,32 @@ import de.gurkenlabs.litiengine.resources.Resources;
  * @see IAnimationController#getCurrent()
  */
 public class Animation implements IUpdateable, ILaunchable {
-  private final List<KeyFrameListener> listeners;
+  
   /**
    * The default frame duration in milliseconds.
    */
   public static final int DEFAULT_FRAME_DURATION = 120;
   private static final Logger log = Logger.getLogger(Animation.class.getName());
 
+  private transient final List<KeyFrameListener> listeners;
+  
+  @Expose @SerializedName("frames")
   private final List<KeyFrame> keyframes;
-  private final String name;
+  
+  @Expose private final String name;
+  
   private Spritesheet spritesheet;
-
-  private KeyFrame currentFrame;
-  private long lastFrameUpdate;
-  private KeyFrame firstFrame;
+  
   private int frameDuration = DEFAULT_FRAME_DURATION;
+  @Expose private final boolean randomizedStart;
 
-  private boolean loop;
-  private boolean paused;
-  private boolean playing;
+  private transient KeyFrame currentFrame;
+  private transient long lastFrameUpdate;
+  private transient KeyFrame firstFrame;
+
+  @Expose private boolean loop;
+  private transient boolean paused;
+  private transient boolean playing;
 
   /**
    * Initializes a new instance of the {@code Animation} class.
@@ -90,6 +101,25 @@ public class Animation implements IUpdateable, ILaunchable {
   public Animation(final Spritesheet spritesheet, final boolean loop, final int... keyFrameDurations) {
     this(spritesheet.getName(), spritesheet, loop, keyFrameDurations);
   }
+  
+  /**
+   * Initializes a new instance of the {@code Animation} class.
+   * 
+   * @param name
+   *          The name of this animation.
+   * 
+   * @param spritesheet
+   *          The spritesheet used by this animation.
+   * 
+   * @param loop
+   *          A flag indicating whether the animation should be looped or played only once.
+   * 
+   * @param keyFrameDurations
+   *          The duration of each keyframe.
+   */
+  public Animation(final String name, final Spritesheet spritesheet, final boolean loop, final int... keyFrameDurations) {
+    this(name, spritesheet, loop, false, keyFrameDurations);
+  }
 
   /**
    * Initializes a new instance of the {@code Animation} class.
@@ -110,34 +140,12 @@ public class Animation implements IUpdateable, ILaunchable {
    *          The duration of each keyframe.
    */
   public Animation(final String name, final Spritesheet spritesheet, final boolean loop, final boolean randomizeStart, final int... keyFrameDurations) {
-    this(name, spritesheet, loop, keyFrameDurations);
-
-    if (randomizeStart && !this.keyframes.isEmpty()) {
-      this.firstFrame = Game.random().choose(this.getKeyframes());
-    }
-  }
-
-  /**
-   * Initializes a new instance of the {@code Animation} class.
-   * 
-   * @param name
-   *          The name of this animation.
-   * 
-   * @param spritesheet
-   *          The spritesheet used by this animation.
-   * 
-   * @param loop
-   *          A flag indicating whether the animation should be looped or played only once.
-   * 
-   * @param keyFrameDurations
-   *          The duration of each keyframe.
-   */
-  public Animation(final String name, final Spritesheet spritesheet, final boolean loop, final int... keyFrameDurations) {
     this.name = name;
     this.spritesheet = spritesheet;
     this.loop = loop;
     this.keyframes = new ArrayList<>();
     this.listeners = new CopyOnWriteArrayList<>();
+    this.randomizedStart = randomizeStart;
 
     if (spritesheet == null) {
       log.log(Level.WARNING, "no spritesheet defined for animation {0}", this.getName());
@@ -148,6 +156,18 @@ public class Animation implements IUpdateable, ILaunchable {
     if (this.getKeyframes().isEmpty()) {
       log.log(Level.WARNING, "No keyframes defined for animation {0} (spitesheet: {1})", new Object[] { this.getName(), spritesheet.getName() });
     }
+
+    if (this.randomizedStart && !this.keyframes.isEmpty()) {
+      this.firstFrame = Game.random().choose(this.getKeyframes());
+    }
+  }
+  
+  /**
+   * Internal use only, used for deserialization
+   */
+  @Deprecated
+  public void finishDeserialization() {
+    this.spritesheet = Resources.spritesheets().get(name);
   }
 
   /**
@@ -276,6 +296,10 @@ public class Animation implements IUpdateable, ILaunchable {
   public int[] getKeyFrameDurations() {
     return this.getKeyframes().stream().mapToInt(KeyFrame::getDuration).toArray();
   }
+ 
+  public int[] getKeyFrameIndexes() {
+    return this.getKeyframes().stream().mapToInt(KeyFrame::getIndex).toArray();
+  }
 
   /**
    * Sets the looping behavior for this animation.
@@ -293,6 +317,10 @@ public class Animation implements IUpdateable, ILaunchable {
 
   public void removeKeyFrameListener(final KeyFrameListener listener) {
     this.listeners.remove(listener);
+  }
+  
+  public boolean randomizedStart() {
+    return this.randomizedStart;
   }
 
   @Override
@@ -352,8 +380,8 @@ public class Animation implements IUpdateable, ILaunchable {
     return this.currentFrame;
   }
 
-  List<KeyFrame> getKeyframes() {
-    return this.keyframes;
+  public List<KeyFrame> getKeyframes() {
+    return Collections.unmodifiableList(this.keyframes);
   }
 
   /**

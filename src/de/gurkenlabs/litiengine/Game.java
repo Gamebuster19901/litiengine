@@ -31,6 +31,7 @@ import de.gurkenlabs.litiengine.graphics.RenderComponent;
 import de.gurkenlabs.litiengine.graphics.RenderEngine;
 import de.gurkenlabs.litiengine.graphics.ShapeRenderer;
 import de.gurkenlabs.litiengine.graphics.TextRenderer;
+import de.gurkenlabs.litiengine.gson.GsonHelper;
 import de.gurkenlabs.litiengine.gui.screens.Screen;
 import de.gurkenlabs.litiengine.gui.screens.ScreenManager;
 import de.gurkenlabs.litiengine.input.Input;
@@ -93,7 +94,9 @@ public final class Game {
   private static GameWorld world = new GameWorld();
   
   private static Gson gson;
-  private static GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().excludeFieldsWithoutExposeAnnotation();
+  
+  @SuppressWarnings("deprecation")
+  private static GsonBuilder gsonBuilder = GsonHelper.addGsonSerializers(new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().excludeFieldsWithoutExposeAnnotation());
 
   private static boolean debug = true;
   private static boolean noGUIMode = false;
@@ -442,7 +445,7 @@ public final class Game {
   }
   
   public static GsonBuilder gsonBuilder() {
-    return gsonBuilder();
+    return gsonBuilder;
   }
   
   public static Gson gson() {

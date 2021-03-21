@@ -197,7 +197,7 @@ public class AnimationController implements IAnimationController {
       return opt.get();
     }
 
-    BufferedImage sprite = current.getSpritesheet().getSprite(current.getCurrentKeyFrame().getSpriteIndex());
+    BufferedImage sprite = current.getSpritesheet().getSprite(current.getCurrentKeyFrame().getIndex());
     for (final ImageEffect effect : this.getImageEffects()) {
       sprite = effect.apply(sprite);
     }
@@ -378,7 +378,7 @@ public class AnimationController implements IAnimationController {
     final StringBuilder cacheKey = new StringBuilder();
     cacheKey.append(this.getCurrent().getSpritesheet().hashCode());
     cacheKey.append('_');
-    cacheKey.append(this.getCurrent().getCurrentKeyFrame().getSpriteIndex());
+    cacheKey.append(this.getCurrent().getCurrentKeyFrame().getIndex());
     cacheKey.append('_');
 
     this.getImageEffects().forEach(x -> cacheKey.append(x.getName().hashCode()));
