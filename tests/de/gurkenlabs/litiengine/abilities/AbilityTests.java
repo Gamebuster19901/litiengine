@@ -2,19 +2,20 @@ package de.gurkenlabs.litiengine.abilities;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import de.gurkenlabs.litiengine.graphics.RenderEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,7 @@ import de.gurkenlabs.litiengine.abilities.effects.Effect;
 import de.gurkenlabs.litiengine.abilities.effects.EffectTarget;
 import de.gurkenlabs.litiengine.entities.Creature;
 import de.gurkenlabs.litiengine.entities.EntityPivotType;
+import org.mockito.MockedStatic;
 
 class AbilityTests {
   @BeforeEach
@@ -31,29 +33,131 @@ class AbilityTests {
   }
 
   @Test
-  void testGetRemainingCooldownInSeconds() {
-    Creature creature = mock(Creature.class);
-    TestAbility ability = new TestAbility(creature);
+  public void isOnCooldownNoCurrentExecution() {
+    // arrange
+    TestAbility ability = setupAbility();
+
+    ability.setCurrentExecution(null);
+
+    // act
+    boolean onCooldown = ability.isOnCooldown();
+
+    // assert
+    assertFalse(onCooldown);
+  }
+
+  @Test
+  public void isOnCooldownCurrentExecutionOver() {
+    // arrange
+    TestAbility ability = setupAbility();
+
+    AbilityExecution abExec = mock(AbilityExecution.class);
+    when(abExec.getExecutionTicks()).thenReturn(0L);
+    ability.setCurrentExecution(abExec);
+
+    // act
+    boolean onCooldown = ability.isOnCooldown();
+
+    // assert
+    assertFalse(onCooldown);
+  }
+
+  @Test
+  public void isOnCooldownCooldownOver() {
+    // arrange
+    TestAbility ability = setupAbility();
+
+    AbilityExecution abExec = mock(AbilityExecution.class);
+    when(abExec.getExecutionTicks()).thenReturn(Game.time().now() - (ability.getAttributes().cooldown().get() + 1));
+    ability.setCurrentExecution(abExec);
+
+    // act
+    boolean onCooldown = ability.isOnCooldown();
+
+    // assert
+    assertFalse(onCooldown);
+  }
+
+  @Test
+  public void isOnCooldownStillOnCooldown() {
+    // arrange
+    TestAbility ability = setupAbility();
+
+    AbilityExecution abExec = mock(AbilityExecution.class);
+    when(abExec.getExecutionTicks()).thenReturn(1L);
+    ability.setCurrentExecution(abExec);
+
+    // act
+    boolean onCooldown = ability.isOnCooldown();
+
+    // assert
+    assertTrue(onCooldown);
+  }
+
+  @Test
+  void getRemainingCooldownInSecondsNoCast() {
+    // arrange
+    TestAbility ability = setupAbility();
+
+    // act
     float actual = ability.getRemainingCooldownInSeconds();
+
+    // assert
     assertEquals(0, actual);
   }
 
   @Test
-  void testGetRemainingCooldownInSecondsNoCast() {
-    Creature creature = mock(Creature.class);
-    TestAbility ability = new TestAbility(creature);
-    float actual = ability.getRemainingCooldownInSeconds();
-    assertEquals(0, actual);
-  }
-
-  @Test
-  void testGetRemainingCooldownInSecondsCreatureIsDead() {
+  void getRemainingCooldownInSecondsCreatureIsDead() {
+    // arrange
     Creature creature = mock(Creature.class);
     when(creature.isDead()).thenReturn(true);
     TestAbility ability = new TestAbility(creature);
     ability.cast();
+
+    // act
     float actual = ability.getRemainingCooldownInSeconds();
+
+    // assert
     assertEquals(0, actual);
+  }
+
+  @Test
+  public void testGetRemainingCooldownInSeconds_returnTime() {
+    Creature creature = mock(Creature.class);
+    TestAbility ability = new TestAbility(creature);
+    ability.canCast();
+
+    AbilityExecution ae = mock(AbilityExecution.class);
+    when(ae.getExecutionTicks()).thenReturn(10l);
+    ability.setCurrentExecution(ae);
+
+    //act
+    float actual = ability.getRemainingCooldownInSeconds();
+
+    //assert
+    assertEquals(0.499, actual, 0.0001);
+  }
+
+  @Test
+  public void testGetRemainingCooldownInSeconds_returnZero() {
+    Creature creature = mock(Creature.class);
+    TestAbility ability = new TestAbility(creature);
+    ability.canCast();
+
+    AbilityExecution ae = mock(AbilityExecution.class);
+    when(ae.getExecutionTicks()).thenReturn(0l);
+    ability.setCurrentExecution(ae);
+
+    //act
+    float actual = ability.getRemainingCooldownInSeconds();
+
+    //assert
+    assertEquals(0, actual);
+  }
+
+  private TestAbility setupAbility() {
+    Creature creature = mock(Creature.class);
+    return new TestAbility(creature);
   }
 
   @Test
@@ -178,102 +282,75 @@ class AbilityTests {
     assertEquals(ePub.getHeight(), eInt.getHeight(), 0.001);
   }
 
-  /*
-   * Test the function getOrigin() with valid inputs when AbilityOrigin = LOCATION.
-   */
   @Test
   void testGetOriginLocation() {
-    Point2D point1 = new Point2D.Double(0, 0);
-    Point2D point2 = new Point2D.Double(1, 1);
-
-    /*
-     * If AbilityOrigin = LOCATION; (default) mapLocation = Point2D.Double(0,0)
-     * --> return Point2D.Double(0,0)
-     */
+    // arrange
     Creature entity = mock(Creature.class);
-    when(entity.getLocation()).thenReturn(point1);
 
+    // act
     TestOriginLocation abilityLocation = new TestOriginLocation(entity);
-    assertEquals(point1, abilityLocation.getPivot().getPoint());
 
-    /*
-     * If AbilityOrigin = LOCATION; mapLocation = Point2D.Double(1,1)
-     * --> return Point2D.Double(1,1)
-     */
-    when(entity.getLocation()).thenReturn(point2);
-    when(entity.getX()).thenReturn((double) 1);
-    when(entity.getY()).thenReturn((double) 1);
-    assertEquals(point2, abilityLocation.getPivot().getPoint());
+    // assert
+    assertEquals(entity, abilityLocation.getPivot().getEntity());
+    assertEquals(EntityPivotType.LOCATION, abilityLocation.getPivot().getType());
   }
 
-  /*
-   * Test the function getOrigin() with valid inputs when AbilityOrigin = CUSTOM.
-   */
   @Test
   void testGetOriginCustom() {
-    Point2D point2 = new Point2D.Double(1, 1);
-    Point2D point3 = new Point2D.Double(2, 2);
-
-    /*
-     * If AbilityOrigin = CUSTOM; origin = null; (default) mapLocation = Point2D.Double(0,0)
-     * --> return Point2D.Double(0,0)
-     */
+    // arrange
     Creature entity = mock(Creature.class);
-    when(entity.getLocation()).thenReturn(point2);
-    when(entity.getX()).thenReturn((double) 1);
-    when(entity.getY()).thenReturn((double) 1);
 
-    TestOriginCustom abilityCustom = new TestOriginCustom(entity);
-    assertEquals(point2, abilityCustom.getPivot().getPoint());
+    // act
+    TestOriginCustom abilityLocation = new TestOriginCustom(entity);
 
-    /*
-     * If AbilityOrigin = CUSTOM; origin = Point2D.Double(1,1); mapLocation = Point2D.Double(1,1)
-     * --> return Point2D.Double(2,2).
-     */
-    abilityCustom.getPivot().setOffset(point2);
-    assertEquals(point3, abilityCustom.getPivot().getPoint());
+    // assert
+    assertEquals(entity, abilityLocation.getPivot().getEntity());
+    assertEquals(EntityPivotType.OFFSET, abilityLocation.getPivot().getType());
   }
 
-  /*
-   * Test the function getOrigin() with valid inputs when AbilityOrigin = DIMENSION_CENTER.
-   */
   @Test
   void testGetOriginDimension() {
-    Point2D point1 = new Point2D.Double(16, 16);
-
-    /*
-     * If AbilityOrigin = DIMENSION_CENTER; (default) mapLocation = Point2D.Double(0,0); (default) height = 32; (default) width = 32
-     * --> return Point2D.Double(16,16)
-     */
-
+    // arrange
     Creature entity = mock(Creature.class);
-    when(entity.getCenter()).thenReturn(point1);
 
-    TestOriginDimension abilityDimension = new TestOriginDimension(entity);
-    assertEquals(point1, abilityDimension.getPivot().getPoint());
+    // act
+    TestOriginDimension abilityLocation = new TestOriginDimension(entity);
+
+    // assert
+    assertEquals(entity, abilityLocation.getPivot().getEntity());
+    assertEquals(EntityPivotType.DIMENSION_CENTER, abilityLocation.getPivot().getType());
   }
-
-  /*
-   * Test the function getOrigin() with valid inputs when AbilityOrigin = COLLISIONBOX_CENTER.
-   */
 
   @Test
   void testGetOriginCollisionBox() {
-    Point2D point1 = new Point2D.Double(16, 25.6);
-    Rectangle2D shape1 = new Rectangle2D.Double(9.6, 19.2, 12.8, 12.8);
-
-    /*
-     * If AbilityOrigin = COLLISIONBOX_CENTER; (default) mapLocation = Point2D.Double(0,0); (default) height = 32; (default) width = 32;
-     * (default) Valign = DOWN; (default) Align = CENTER; (default) collisionBoxHeight = -1; (default) collisionBoxwidth = -1
-     * --> return Point2D(16, 25.6)
-     */
-
+    // arrange
     Creature entity = mock(Creature.class);
-    when(entity.getCollisionBox()).thenReturn(shape1);
 
-    TestOriginCollisionBox abilityCollision = new TestOriginCollisionBox(entity);
-    assertEquals(point1, abilityCollision.getPivot().getPoint());
+    // act
+    TestOriginCollisionBox abilityLocation = new TestOriginCollisionBox(entity);
 
+    // assert
+    assertEquals(entity, abilityLocation.getPivot().getEntity());
+    assertEquals(EntityPivotType.COLLISIONBOX_CENTER, abilityLocation.getPivot().getType());
+  }
+
+  @Test
+  public void testRender(){
+    // arrange
+    TestAbility ability = new TestAbility(new Creature());
+    Graphics2D graphics = mock(Graphics2D.class);
+    RenderEngine renderEngine = mock(RenderEngine.class);
+
+    try (MockedStatic<Game> gameMockedStatic = mockStatic(Game.class)){
+      gameMockedStatic.when(Game::graphics).thenReturn(renderEngine);
+
+      // act
+      ability.render(graphics);
+
+      // assert
+      verify(renderEngine, times(1)).renderShape(any(Graphics2D.class), any(Shape.class));
+      verify(renderEngine, times(1)).renderOutline(any(Graphics2D.class), any(Shape.class));
+    }
   }
 
   @AbilityInfo(castType = CastType.ONCONFIRM, name = "I do somethin", description = "does somethin", cooldown = 333, duration = 222, impact = 111, impactAngle = 99, multiTarget = true, origin = EntityPivotType.COLLISIONBOX_CENTER, range = 444, value = 999)
@@ -460,4 +537,33 @@ class AbilityTests {
     assertEquals(0, a.getCurrentExecution().getExecutionTicks());
     assertTrue(a.canCast());
   }
+
+  @Test
+  public void testOnEffectApplied(){
+    Effect.EffectAppliedListener listener;
+    Effect effect;
+    Ability ability = new TestAbility(new Creature());
+    listener = mock(Effect.EffectAppliedListener.class);
+    effect = mock(Effect.class);
+    ability.addEffect(effect);
+    ability.onEffectApplied(listener);
+
+    verify(listener, times(0)).applied(any());
+
+  }
+
+  @Test
+  public void testOnEffectCeased(){
+    Effect.EffectCeasedListener listener;
+    Effect effect;
+    Ability ability = new TestAbility(new Creature());
+    listener = mock(Effect.EffectCeasedListener.class);
+    effect = mock(Effect.class);
+    ability.addEffect(effect);
+    ability.onEffectCeased(listener);
+
+    verify(listener, times(0)).ceased(any());
+
+  }
+
 }

@@ -1,17 +1,17 @@
 package de.gurkenlabs.litiengine.entities;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.*;
+import org.junit.jupiter.params.provider.*;
 
-import org.junit.jupiter.api.Test;
+import java.util.stream.*;
 
-public class EntityTests {
+import static org.junit.jupiter.api.Assertions.*;
+
+class EntityTests {
 
   @Test
-  public void testEntityAction() {
+  void testEntityAction() {
     TestEntity entity = new TestEntity();
 
     assertTrue(entity.actions().exists("doSomething"));
@@ -42,7 +42,7 @@ public class EntityTests {
   }
 
   @Test
-  public void testNamedAction() {
+  void testNamedAction() {
     TestEntity entity = new TestEntity();
 
     assertTrue(entity.actions().exists("myName"));
@@ -57,12 +57,9 @@ public class EntityTests {
   }
 
   @Test
-  public void testCustomAction() {
+  void testCustomAction() {
     TestEntity entity = new TestEntity();
-    entity.register("customAction", () -> {
-      entity.customActionPerformed = true;
-      return;
-    });
+    entity.register("customAction", () -> entity.customActionPerformed = true);
 
     assertTrue(entity.actions().exists("customAction"));
 
@@ -76,17 +73,23 @@ public class EntityTests {
     assertDoesNotThrow(() -> entity.perform("I don't exist!"));
   }
 
-  @Test
-  public void testDefaultTags() {
+  @ParameterizedTest
+  @MethodSource("getDefaultTags")
+  void testDefaultTags(String tag) {
     TestEntity entity = new TestEntity();
+    assertTrue(entity.hasTag(tag));
+  }
 
-    assertTrue(entity.hasTag("some tag"));
-    assertTrue(entity.hasTag("another tag"));
+  private static Stream<Arguments> getDefaultTags() {
+    return Stream.of(
+        Arguments.of("some tag"),
+        Arguments.of("another tag")
+    );
   }
 
   @Tag("some tag")
   @Tag("another tag")
-  private class TestEntity extends Entity {
+  private static class TestEntity extends Entity {
     private boolean didSomething;
     private boolean didNamedAction;
     private boolean customActionPerformed;
@@ -104,11 +107,11 @@ public class EntityTests {
     @SuppressWarnings("unused")
     public void imNotAnAction() {
     }
-    
+
     @Action
     public void imNotParameterless(int something) {
     }
-    
+
     @Action
     private void privateAction() {
     }

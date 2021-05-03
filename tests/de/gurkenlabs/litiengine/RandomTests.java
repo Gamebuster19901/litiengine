@@ -1,9 +1,5 @@
 package de.gurkenlabs.litiengine;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
@@ -11,7 +7,18 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class RandomTests {
+
+  private static final String SEED = "myseed";
+
   @Test
   public void testRandomInRange() {
     for (int i = 0; i < 100; i++) {
@@ -32,43 +39,128 @@ public class RandomTests {
   }
 
   @Test
-  public void testSeed() {
-    Game.random().setSeed("myseed");
+  public void testSeed_nextInt(){
+    // arrange
+    Game.random().setSeed(SEED);
+    int expectedValue = Game.random().nextInt();
 
-    int val1 = Game.random().nextInt();
-    char val2 = Game.random().nextChar();
-    double val3 = Game.random().nextDouble();
-    long val4 = Game.random().nextLong();
-    float val5 = Game.random().nextFloat();
+    // act
+    Game.random().setSeed(SEED);
+    int actualValue = Game.random().nextInt();
 
-    Game.random().setSeed("myseed");
+    // assert: check if the same integer is returned after resetting the seed
+    assertEquals(expectedValue, actualValue);
+  }
 
-    assertEquals(val1, Game.random().nextInt());
-    assertEquals(val2, Game.random().nextChar());
-    assertEquals(val3, Game.random().nextDouble());
-    assertEquals(val4, Game.random().nextLong());
-    assertEquals(val5, Game.random().nextFloat());
+  @Test
+  public void testSeed_nextChar(){
+    // arrange
+    Game.random().setSeed(SEED);
+    char expectedValue = Game.random().nextChar();
+
+    // act
+    Game.random().setSeed(SEED);
+    char actualValue = Game.random().nextChar();
+
+    // assert: check if the same character is returned after resetting the seed
+    assertEquals(expectedValue, actualValue);
+  }
+
+  @Test
+  public void testSeed_nextDouble(){
+    // arrange
+    Game.random().setSeed(SEED);
+    double expectedValue = Game.random().nextDouble();
+
+    // act
+    Game.random().setSeed(SEED);
+    double actualValue = Game.random().nextDouble();
+
+    // assert: check if the same double is returned after resetting the seed
+    assertEquals(expectedValue, actualValue);
+  }
+
+  @Test
+  public void testSeed_nextLong(){
+    // arrange
+    Game.random().setSeed(SEED);
+    long expectedValue = Game.random().nextLong();
+
+    // act
+    Game.random().setSeed(SEED);
+    long actualValue = Game.random().nextLong();
+
+    // assert: check if the same long is returned after resetting the seed
+    assertEquals(expectedValue, actualValue);
+  }
+
+  @Test
+  public void testSeed_nextFloat(){
+    // arrange
+    Game.random().setSeed(SEED);
+    float expectedValue = Game.random().nextFloat();
+
+    // act
+    Game.random().setSeed(SEED);
+    float actualValue = Game.random().nextFloat();
+
+    // assert: check if the same float is returned after resetting the seed
+    assertEquals(expectedValue, actualValue);
+  }
+
+  @Test
+  public void nextDouble_OnPoint() { // ==
+    // assert
+    assertEquals(1.0, Game.random().nextDouble(1.0, 1.0));
+  }
+
+  @Test
+  public void nextDouble_OffPoint() { // else
+    // arrange
+    GameRandom random = mock(GameRandom.class);
+    when(random.nextDouble()).thenReturn(0.5);
+    when(random.nextDouble(anyDouble(), anyDouble())).thenCallRealMethod();
+
+    // act, assert
+    assertEquals(1.05, random.nextDouble(1.0, 1.1)); // 1.0 + rand * (1.1 - 1.0)
+  }
+
+  @Test
+  public void nextDouble_InPoint() { // greater
+    // assert
+    assertThrows(IllegalArgumentException.class, () -> Game.random().nextDouble(1.1, 1.0));
+  }
+
+  @Test
+  public void nextDouble_OutPoint() { // else
+    // arrange
+    GameRandom random = mock(GameRandom.class);
+    when(random.nextDouble()).thenReturn(0.5);
+    when(random.nextDouble(anyDouble(), anyDouble())).thenCallRealMethod();
+
+    // act, assert
+    assertEquals(6.5, random.nextDouble(4.0, 9.0)); // 4.0 + rand * (9.0 - 4.0)
   }
 
   @Test
   public void testAlphaNumeric() {
     for (int i = 0; i < 10; i++) {
-      assertTrue(Game.random().nextAlphanumeric(i).length() == i);
+      assertEquals(i, Game.random().nextAlphanumeric(i).length());
     }
   }
 
   @Test
   public void testAlphabetic() {
     for (int i = 0; i < 10; i++) {
-      assertTrue(Game.random().nextAlphabetic(i).length() == i);
-      assertTrue(Game.random().nextAlphabetic(i, true).length() == i);
+      assertEquals(i, Game.random().nextAlphabetic(i).length());
+      assertEquals(i, Game.random().nextAlphabetic(i, true).length());
     }
   }
 
   @Test
   public void testAsciiStrings() {
     for (int i = 0; i < 10; i++) {
-      assertTrue(Game.random().nextAscii(i).length() == i);
+      assertEquals(i, Game.random().nextAscii(i).length());
     }
   }
 
