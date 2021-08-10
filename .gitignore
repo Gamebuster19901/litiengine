@@ -1,5 +1,5 @@
 **/.gradle/
-**/build/
+/build/
 /bin/
 /config.properties
 .DS_Store
@@ -9,7 +9,3 @@ hs_err_pid*.log
 /.idea
 /out
 /utiliti/out
-
-**/.classpath
-**/.project
-**/.settings/
