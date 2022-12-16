@@ -52,13 +52,7 @@ jobs:
         with:
           arguments: |
             build
-            -x test
             -PskipSpotless
-
-      - name: Test
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          run: ./gradlew jacocoTestReport -PskipSpotless
 
       - name: Package Creation
         uses: gradle/gradle-build-action@v2
