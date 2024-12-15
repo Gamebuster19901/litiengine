@@ -3,27 +3,28 @@ package de.gurkenlabs.litiengine.entities.behavior;
 import de.gurkenlabs.litiengine.IUpdateable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * A StateMachine manages states and transition to model conditional behaviour.
+ * Represents a state machine that manages the states and transitions of an entity.
  */
 public class StateMachine implements IUpdateable {
 
   private State currentState;
 
   /**
-   * Get the current state of the StateMachine.
+   * Gets the current state of the state machine.
    *
-   * @return The current state.
+   * @return the current state
    */
   public State getCurrentState() {
     return currentState;
   }
 
   /**
-   * Set the new state for the StateMachine.
+   * Sets a new state for the state machine.
    *
-   * @param newState The new state to set.
+   * @param newState the new state to be set
    */
   public void setState(State newState) {
     if (currentState != null) {
@@ -34,6 +35,9 @@ public class StateMachine implements IUpdateable {
     currentState.enter();
   }
 
+  /**
+   * Updates the state machine, performing the current state's actions and handling transitions.
+   */
   @Override
   public void update() {
     if (currentState == null) {
@@ -43,14 +47,7 @@ public class StateMachine implements IUpdateable {
     currentState.perform();
     List<Transition> transitions = currentState.getTransitions();
     Collections.sort(transitions);
-
-    for (Transition transition : transitions) {
-      if (transition.conditionsFullfilled()) {
-        currentState.exit();
-        currentState = transition.getNextState();
-        currentState.enter();
-        return;
-      }
-    }
+    Optional<Transition> transition = transitions.stream().filter(Transition::conditionsFullfilled).findFirst();
+    transition.ifPresent(value -> setState(value.getNextState()));
   }
 }

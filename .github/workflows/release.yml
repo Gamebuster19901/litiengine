@@ -35,10 +35,10 @@ jobs:
           fetch-depth: 0
 
       - name: JDK Setup
-        uses: actions/setup-java@v4.3.0
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 23
 
       - name: Gradle Setup
         uses: gradle/actions/setup-gradle@v4
@@ -106,20 +106,34 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK
-        uses: actions/setup-java@v4.3.0
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 23
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Package
-        run: ./gradlew jpackage -Prelease=true
+        shell: bash
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "RELEASE_VERSION=$latest_tag" >> "$GITHUB_ENV"
+          ./gradlew jpackage -Prelease=true
 
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
           name: utiLITI-${{ runner.os }}
           path: utiliti/build/jpackage
-      # TODO consider uploading the artifacts to itch.io automatically with butler, https://github.com/jdno/setup-butler
+
+      - name: Set up Butler
+        if: runner.arch == 'X64'
+        uses: jdno/setup-butler@v1
+
+      - name: Upload to itch.io
+        if: runner.arch == 'X64'
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          butler push utiliti/build/jpackage gurkenlabs/litiengine:${{ runner.os }} --userversion ${{ env.RELEASE_VERSION }}
